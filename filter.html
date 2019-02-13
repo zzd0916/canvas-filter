@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>filter</title>
+  <style>
+    #canvasa,#canvasb{
+      display: block;
+      margin:  20px ;
+      border: 1px solid #dedede;
+      float: left;
+    }
+    #canvasb{
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div style="margin: 20px auto; width: 1700px;">
+    <canvas id="canvasa" ></canvas>
+    <canvas id="canvasb" ></canvas>
+  </div>
+  <div style="clear: both"></div>
+  <div style="margin: 40px 0; text-align: center">
+    <a href="javascript:greyfilter()">greyfilter</a>
+    <a href="javascript:blackfilter()">blackfilter</a>
+    <a href="javascript:reversefilter()">reversefilter</a>
+    <a href="javascript:blurfilter()">blurfilter</a>
+    <a href="javascript:mosaicfilter()">mosaicfilter</a>
+    
+
+    
+  </div>
+  <script>
+    let canvasa = document.getElementById('canvasa');
+    let contexta = canvasa.getContext('2d')
+
+    canvasa.width = 800;
+    canvasa.height = 600;
+    let canvasb = document.getElementById('canvasb');
+    let contextb = canvasb.getContext('2d')
+
+    canvasb.width = 800;
+    canvasb.height = 600;
+
+    let image = new Image();
+
+
+
+    window.onload = function(){
+      
+      image.src = './james.jpeg'
+      
+      image.onload = function () {  
+        
+        contexta.drawImage(image, 0, 0 , canvasa.width, canvasa.height)
+        
+       
+
+       
+      }
+     
+    }
+    
+    // 需要在服务端打开， 否则会出现跨域问题
+
+    // 灰色
+    function greyfilter() { 
+
+      // 获取图像信息 getImageData (x , y , w, h) 
+      var imageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+     
+      var pixelData = imageData.data
+
+      // pixel 是一维数组， 每4个一组 代表元素的 rgba 值
+
+      for( var i = 0; i < canvasb.width * canvasb.height; i++){
+        var r = pixelData[4*i + 0] // 获取第i位的 r 颜色值
+        var g = pixelData[4*i + 1] // 获取第i位的 g 颜色值
+        var b = pixelData[4*i + 2] // 获取第i位的 b 颜色值
+
+        let grey = r* 0.3 + g*0.59 + b*0.11
+        pixelData[4*i + 0] = grey
+        pixelData[4*i + 1] = grey
+        pixelData[4*i + 2] = grey
+
+      } 
+      // 放入图像信息 putImageData (imageData , dx , dy, dirtyX, dirtyY, dirtyW, dirtyH) 
+      // 注意：  dx , dy, dirtyX, dirtyY 位置会叠加
+      contextb.putImageData( imageData, 0, 0, 0, 0, canvasb.width, canvasb.height)
+    }
+
+    // 黑白
+    function blackfilter() { 
+
+      // 获取图像信息 getImageData (x , y , w, h) 
+      var imageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+     
+      var pixelData = imageData.data
+
+      // pixel 是一维数组， 每4个一组 代表元素的 rgba 值
+
+      for( var i = 0; i < canvasb.width * canvasb.height; i++){
+        var r = pixelData[4*i + 0] // 获取第i位的 r 颜色值
+        var g = pixelData[4*i + 1] // 获取第i位的 g 颜色值
+        var b = pixelData[4*i + 2] // 获取第i位的 b 颜色值
+
+        let grey = r* 0.3 + g*0.59 + b*0.11
+        var b
+        if( grey > 255 / 2){
+          b = 255
+        } else{
+          b = 0
+        }
+        pixelData[4*i + 0] = b
+        pixelData[4*i + 1] = b
+        pixelData[4*i + 2] = b
+        
+      } 
+      // 放入图像信息 putImageData (imageData , dx , dy, dirtyX, dirtyY, dirtyW, dirtyH) 
+      // 注意：  dx , dy, dirtyX, dirtyY 位置会叠加
+      contextb.putImageData( imageData, 0, 0, 0, 0, canvasb.width, canvasb.height)
+    }
+
+    // 反色
+    function reversefilter() { 
+
+      // 获取图像信息 getImageData (x , y , w, h) 
+      var imageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+     
+      var pixelData = imageData.data
+
+      // pixel 是一维数组， 每4个一组 代表元素的 rgba 值
+
+      for( var i = 0; i < canvasb.width * canvasb.height; i++){
+        var r = pixelData[4*i + 0] // 获取第i位的 r 颜色值
+        var g = pixelData[4*i + 1] // 获取第i位的 g 颜色值
+        var b = pixelData[4*i + 2] // 获取第i位的 b 颜色值
+
+        
+        
+        pixelData[4*i + 0] = 255 - r
+        pixelData[4*i + 1] = 255 - g
+        pixelData[4*i + 2] = 255 - b
+        
+      } 
+      // 放入图像信息 putImageData (imageData , dx , dy, dirtyX, dirtyY, dirtyW, dirtyH) 
+      // 注意：  dx , dy, dirtyX, dirtyY 位置会叠加
+      contextb.putImageData( imageData, 0, 0, 0, 0, canvasb.width, canvasb.height)
+    }
+
+
+    // 模糊
+    function blurfilter() { 
+    
+      // 参考值
+      var tempImageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+      var tmpPixelData = tempImageData.data
+
+      var imageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+      var pixelData = imageData.data
+
+      // pixel 是一维数组， 每4个一组 代表元素的 rgba 值
+      
+      var blurR = 2 // 参考点半径
+      var totalNum = (2*blurR + 1) * (2*blurR + 1) // 获取周围点的数量
+      for(var i = blurR ; i < canvasb.height - blurR; i++) {
+        for( var j = blurR ; j < canvasb.width - blurR; j++) {
+          
+          var totalr = 0 , totalg = 0 , totalb = 0;
+
+          for( var dx = -blurR ; dx <= blurR; dx++){
+            for( var dy = -blurR; dy <= blurR ; dy++){
+
+              var x = i + dx
+              var y = j + dy
+              var p = x*canvasb.width + y
+
+              totalr += tmpPixelData[p*4 + 0]
+              totalg += tmpPixelData[p*4 + 1]
+              totalb += tmpPixelData[p*4 + 2]
+
+            }
+          }
+
+          var p = i*canvasb.width + j
+          // 计算周围点的平均值 作为像素值
+          pixelData[p*4 + 0] = totalr / totalNum
+          pixelData[p*4 + 1] = totalg / totalNum
+          pixelData[p*4 + 2] = totalb / totalNum
+        }
+
+      }
+      
+        
+      // 放入图像信息 putImageData (imageData , dx , dy, dirtyX, dirtyY, dirtyW, dirtyH) 
+      // 注意：  dx , dy, dirtyX, dirtyY 位置会叠加
+      contextb.putImageData( imageData, 0, 0, 0, 0, canvasb.width, canvasb.height)
+    }
+
+    // 马赛克
+    function mosaicfilter() { 
+    
+      // 参考值
+      var tempImageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+      var tmpPixelData = tempImageData.data
+
+      var imageData = contexta.getImageData(0, 0, canvasa.width, canvasa.height)
+      var pixelData = imageData.data
+
+      // pixel 是一维数组， 每4个一组 代表元素的 rgba 值
+      
+      var size = 16 // 参考点半径
+      var totalNum = size * size // 获取周围点的数量
+      for(var i = 0 ; i < canvasb.height; i += size) {
+        for( var j = 0 ; j < canvasb.width; j += size) {
+          
+          var totalr = 0 , totalg = 0 , totalb = 0;
+
+          for( var dx = 0 ; dx < size; dx ++){
+            for( var dy = 0; dy < size ; dy ++){
+
+              var x = i + dx
+              var y = j + dy
+
+              var p = x*canvasb.width + y
+
+              totalr += tmpPixelData[p*4 + 0]
+              totalg += tmpPixelData[p*4 + 1]
+              totalb += tmpPixelData[p*4 + 2]
+
+            }
+          }
+
+          var p = i*canvasb.width + j
+          // 计算周围点的平均值 作为像素值
+          resr = totalr / totalNum
+          resg = totalg / totalNum
+          resb = totalb / totalNum
+
+          for( var dx =0 ;dx < size; dx ++){
+            for(var dy=0; dy <size; dy ++){
+              var x = i+dx
+              var y = j +dy
+              var p = x*canvasb.width + y
+              pixelData[p*4 + 0] = resr
+              pixelData[p*4 + 1] = resg
+              pixelData[p*4 + 2] = resb
+            }
+          }
+        }
+
+      }
+      
+        
+      // 放入图像信息 putImageData (imageData , dx , dy, dirtyX, dirtyY, dirtyW, dirtyH) 
+      // 注意：  dx , dy, dirtyX, dirtyY 位置会叠加
+      contextb.putImageData( imageData, 0, 0, 0, 0, canvasb.width, canvasb.height)
+    }
+  </script>
+
+</body>
+</html>
